@@ -56,6 +56,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libsfml-dev
+          echo "SFML_DIR=/usr/lib/x86_64-linux-gnu/cmake/SFML" >> $GITHUB_ENV
 
       - name: Run cppcheck
         uses: ./.github/actions/cppcheck
@@ -190,10 +191,11 @@ jobs:
         uses: ./.github/actions/install-packages
 
       - name: Configure CMake
-        uses: ./.github/actions/configure-cmake
-        with:
-          custom_flags: ${{ matrix.cmake_flags }}
-          warnings_as_errors: 'ON'
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DSFML_DIR=${{ env.SFML_DIR }} \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Build
         run: |

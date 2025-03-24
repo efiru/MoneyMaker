@@ -17,6 +17,7 @@ include(cmake/CopyHelper.cmake)
 ###############################################################################
 
 # Find SFML package (make sure SFML is installed)
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};/usr/lib/x86_64-linux-gnu/cmake/SFML")
 find_package(SFML 2.5 COMPONENTS system window graphics audio REQUIRED)
 include_directories(${SFML_INCLUDE_DIRS})
 
