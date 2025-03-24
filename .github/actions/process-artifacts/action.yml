@@ -67,22 +67,23 @@ runs:
       shell: bash
       run: |
         echo "Listing DLLs in expected location:"
-        ls -la mingw64/bin/
-        
-    - name: Search for DLLs
+        ls -la gcc/mingw64/bin/
+
+    - name: Search for libstdc++-6.dll
       if: runner.os == 'Windows' && matrix.cxx == 'g++'
       shell: bash
       run: |
         find . -type f -iname "libstdc++-6.dll"
-        find . -type f -iname "libgcc_s_seh-1.dll"
-        find . -type f -iname "libwinpthread-1.dll"
+        
+    
+   
         
 
     - name: Copy stdlib (MinGW)
       shell: bash
       if: runner.os == 'Windows' && matrix.cxx == 'g++'
       run: |
-        cp mingw64/bin/libstdc++-6.dll \
-           mingw64/bin/libgcc_s_seh-1.dll \
-           mingw64/bin/libwinpthread-1.dll \
+        cp gcc/mingw64/bin/libstdc++-6.dll \
+           gcc/mingw64/bin/libgcc_s_seh-1.dll \
+           gcc/mingw64/bin/libwinpthread-1.dll \
            ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
