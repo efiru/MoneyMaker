@@ -61,13 +61,21 @@ runs:
              "$(which VCRUNTIME140.dll)" \
              ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
         # fi
+    
+
+    - name: Find mingw64 directory
+      if: runner.os == 'Windows' && matrix.cxx == 'g++'
+      shell: bash
+      run: |
+        echo "Searching for directories named 'mingw64':"
+        find . -type d -iname "mingw64"
+        
 
     - name: Copy stdlib (MinGW)
       shell: bash
       if: runner.os == 'Windows' && matrix.cxx == 'g++'
-      # static linking might not work with MinGW, might be easier this way
       run: |
-        cp gcc/mingw64/bin/libstdc++-6.dll \
-          gcc/mingw64/bin/libgcc_s_seh-1.dll \
-          gcc/mingw64/bin/libwinpthread-1.dll \
-          ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
+        cp winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libstdc++-6.dll \
+           winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libgcc_s_seh-1.dll \
+           winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libwinpthread-1.dll \
+           ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
