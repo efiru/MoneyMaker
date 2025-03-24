@@ -192,25 +192,9 @@ jobs:
 
       - name: Configure CMake
         run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            cmake -S . -B build \
-              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-              -DSFML_DIR=${{ env.SFML_DIR }} \
-              -DSQLite3_INCLUDE_DIR="C:/vcpkg/installed/x64-windows/include" \
-              -DSQLite3_LIBRARY="C:/vcpkg/installed/x64-windows/lib/sqlite3.lib"
-          elif [[ "${{ runner.os }}" == "macOS" ]]; then
-            export LDFLAGS="-L/opt/homebrew/opt/sqlite/lib"
-            export CPPFLAGS="-I/opt/homebrew/opt/sqlite/include"
-            cmake -S . -B build \
-              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-              -DSFML_DIR=${{ env.SFML_DIR }} \
-              -DSQLite3_INCLUDE_DIR="/opt/homebrew/opt/sqlite/include" \
-              -DSQLite3_LIBRARY="/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib"
-          else
-            cmake -S . -B build \
-              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-              -DSFML_DIR=${{ env.SFML_DIR }}
-          fi
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DSFML_DIR=${{ env.SFML_DIR }}
 
       - name: Build
         run: |

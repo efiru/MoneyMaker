@@ -15,12 +15,7 @@ include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
 ###############################################################################
-if(APPLE)
-    set(SQLite3_INCLUDE_DIR "/opt/homebrew/opt/sqlite/include")
-    set(SQLite3_LIBRARY "/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib")
-endif()
-# Find SQLite
-find_package(SQLite3 REQUIRED)
+
 
 ###############################################################################
 # Main game executable (excluding sqlite_test.cpp to avoid main() conflict)
@@ -29,8 +24,7 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         generated/src/Helper.cpp
 )
 
-# Link SQLite
-target_link_libraries(${MAIN_EXECUTABLE_NAME} SQLite::SQLite3)
+
 
 # Include generated headers
 target_include_directories(${MAIN_EXECUTABLE_NAME}
@@ -50,6 +44,3 @@ endif()
 copy_files(FILES tastatura.txt COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
 
 ###############################################################################
-# SQLite test binary
-add_executable(sqlite_test src/sqlite_test.cpp)
-target_link_libraries(sqlite_test PRIVATE SQLite::SQLite3)
