@@ -63,10 +63,10 @@ runs:
         # fi
 
     - name: Copy stdlib (MinGW)
+      if: false
       shell: bash
-      if: runner.os == 'Windows' && matrix.cxx == 'g++'
       run: |
         cp mingw64/bin/libstdc++-6.dll \
            mingw64/bin/libgcc_s_seh-1.dll \
            mingw64/bin/libwinpthread-1.dll \
-           ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
+           ${GITHUB_WORKSPACE}/${{ env.Z
