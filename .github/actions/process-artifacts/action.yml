@@ -62,28 +62,12 @@ runs:
              ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
         # fi
 
-    - name: List MinGW DLL directory
-      if: runner.os == 'Windows' && matrix.cxx == 'g++'
-      shell: bash
-      run: |
-        echo "Listing DLLs in expected location:"
-        ls -la gcc/mingw64/bin/
-
-    - name: Search for libstdc++-6.dll
-      if: runner.os == 'Windows' && matrix.cxx == 'g++'
-      shell: bash
-      run: |
-        find . -type f -iname "libstdc++-6.dll"
-        
-    
-   
-        
-
     - name: Copy stdlib (MinGW)
       shell: bash
       if: runner.os == 'Windows' && matrix.cxx == 'g++'
+      # static linking might not work with MinGW, might be easier this way
       run: |
         cp gcc/mingw64/bin/libstdc++-6.dll \
-           gcc/mingw64/bin/libgcc_s_seh-1.dll \
-           gcc/mingw64/bin/libwinpthread-1.dll \
-           ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
+          gcc/mingw64/bin/libgcc_s_seh-1.dll \
+          gcc/mingw64/bin/libwinpthread-1.dll \
+          ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
