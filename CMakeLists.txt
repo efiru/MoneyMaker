@@ -15,48 +15,52 @@ include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
 ###############################################################################
+# Find SFML 3 (Modern targets!)
+find_package(SFML 3 REQUIRED COMPONENTS graphics window system audio)
 
-# Find SFML package (make sure SFML is installed)
-set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};/usr/lib/x86_64-linux-gnu/cmake/SFML")
-find_package(SFML 2.5 COMPONENTS system window graphics audio REQUIRED)
-include_directories(${SFML_INCLUDE_DIRS})
-
-# Find SQLite package
+# Find SQLite
 find_package(SQLite3 REQUIRED)
 
 ###############################################################################
-
-# Main game executable (EXCLUDES sqlite_test.cpp to prevent duplicate main() issue)
+# Main game executable (excluding sqlite_test.cpp to avoid main() conflict)
 add_executable(${MAIN_EXECUTABLE_NAME}
         src/main.cpp
         generated/src/Helper.cpp
 )
 
-# Link SFML and SQLite to the main executable
-target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE sfml-system sfml-window sfml-graphics sfml-audio SQLite::SQLite3)
+# Link SFML and SQLite
+target_link_libraries(${MAIN_EXECUTABLE_NAME}
+        PRIVATE
+        SFML::Graphics
+        SFML::Window
+        SFML::System
+        SFML::Audio
+        SQLite::SQLite3
+)
 
-###############################################################################
+# Include SFML headers
+target_include_directories(${MAIN_EXECUTABLE_NAME}
+        SYSTEM PRIVATE ${SFML_INCLUDE_DIRS}
+)
 
-# Separate test executable for SQLite (so it doesn't conflict with the main game)
-add_executable(sqlite_test src/sqlite_test.cpp)
-target_link_libraries(sqlite_test PRIVATE SQLite::SQLite3)
+# Include generated headers
+target_include_directories(${MAIN_EXECUTABLE_NAME}
+        SYSTEM PRIVATE generated/include
+)
 
-###############################################################################
-
-# Set compiler flags (Optional)
+# Set compiler flags (optional sanitizers)
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
-###############################################################################
-
-# Include directories for system headers
-target_include_directories(${MAIN_EXECUTABLE_NAME} SYSTEM PRIVATE generated/include)
-
-###############################################################################
-
-# Install binaries
+# Install main executable
 install(TARGETS ${MAIN_EXECUTABLE_NAME} DESTINATION ${DESTINATION_DIR})
 if(APPLE)
     install(FILES launcher.command DESTINATION ${DESTINATION_DIR})
 endif()
 
+# Copy additional resource files
 copy_files(FILES tastatura.txt COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
+
+###############################################################################
+# SQLite test binary
+add_executable(sqlite_test src/sqlite_test.cpp)
+target_link_libraries(sqlite_test PRIVATE SQLite::SQLite3)

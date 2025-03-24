@@ -194,8 +194,7 @@ jobs:
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-            -DSFML_DIR=${{ env.SFML_DIR }} \
-            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            -DSFML_DIR=${{ env.SFML_DIR }}
 
       - name: Build
         run: |
