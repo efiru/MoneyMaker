@@ -29,14 +29,7 @@ add_executable(${MAIN_EXECUTABLE_NAME}
 )
 
 # Link SFML and SQLite
-target_link_libraries(${MAIN_EXECUTABLE_NAME}
-        PRIVATE
-        SFML::Graphics
-        SFML::Window
-        SFML::System
-        SFML::Audio
-        SQLite::SQLite3
-)
+target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE SFML::Graphics SFML::Window SFML::System SFML::Audio SQLite::SQLite3)
 
 # Include SFML headers
 target_include_directories(${MAIN_EXECUTABLE_NAME}
