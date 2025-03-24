@@ -15,6 +15,11 @@ include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
 ###############################################################################
+if(WIN32)
+    # Set the default paths for SQLite on Windows, if installed via vcpkg or similar
+    set(SQLite3_INCLUDE_DIR "C:/path/to/sqlite3/include")
+    set(SQLite3_LIBRARY "C:/path/to/sqlite3/sqlite3.lib")
+endif()
 # Find SQLite
 find_package(SQLite3 REQUIRED)
 
