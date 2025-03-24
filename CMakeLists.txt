@@ -15,6 +15,7 @@ include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
 ###############################################################################
+set(CMAKE_PREFIX_PATH "/usr/local" ${CMAKE_PREFIX_PATH})
 # Find SFML 3 (Modern targets!)
 find_package(SFML 3 REQUIRED COMPONENTS graphics window system audio)
 
