@@ -15,7 +15,15 @@ include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
 ###############################################################################
-
+if(WIN32)
+    # Only set Windows-specific paths when building on Windows.
+    set(SQLite3_INCLUDE_DIR "C:/actual/path/to/sqlite3/include")
+    set(SQLite3_LIBRARY "C:/actual/path/to/sqlite3/sqlite3.lib")
+elseif(APPLE)
+    # Use Homebrew's installation on macOS.
+    set(SQLite3_INCLUDE_DIR "/opt/homebrew/opt/sqlite/include")
+    set(SQLite3_LIBRARY "/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib")
+endif()
 # Find SQLite
 find_package(SQLite3 REQUIRED)
 
