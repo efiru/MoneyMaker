@@ -15,10 +15,6 @@ include(cmake/CompilerFlags.cmake)
 include(cmake/CopyHelper.cmake)
 
 ###############################################################################
-set(CMAKE_PREFIX_PATH "/usr/local" ${CMAKE_PREFIX_PATH})
-# Find SFML 3 (Modern targets!)
-find_package(SFML 3 REQUIRED COMPONENTS graphics window system audio)
-
 # Find SQLite
 find_package(SQLite3 REQUIRED)
 
@@ -29,13 +25,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         generated/src/Helper.cpp
 )
 
-# Link SFML and SQLite
-target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE SFML::Graphics SFML::Window SFML::System SFML::Audio SQLite::SQLite3)
-
-# Include SFML headers
-target_include_directories(${MAIN_EXECUTABLE_NAME}
-        SYSTEM PRIVATE ${SFML_INCLUDE_DIRS}
-)
+# Link SQLite
+target_link_libraries(${MAIN_EXECUTABLE_NAME} SQLite::SQLite3)
 
 # Include generated headers
 target_include_directories(${MAIN_EXECUTABLE_NAME}
