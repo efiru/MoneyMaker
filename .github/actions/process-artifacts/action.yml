@@ -71,11 +71,26 @@ runs:
         find . -type d -iname "mingw64"
         
 
+    - name: Download and extract Winlibs (MinGW) for g++
+      if: runner.os == 'Windows' && matrix.cxx == 'g++'
+      shell: bash
+      run: |
+        echo "Downloading Winlibs distribution..."
+        # The URL here is constructed from your MINGW_VER value.
+        # Adjust if needed.
+        curl -L -o mingw.7z "https://winlibs.com/winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1.7z"
+        echo "Extracting Winlibs..."
+        mkdir mingw_extracted
+        7z x mingw.7z -omingw_extracted
+        echo "Extraction complete. Directory contents:"
+        ls -la mingw_extracted
+
     - name: Copy stdlib (MinGW)
       shell: bash
       if: runner.os == 'Windows' && matrix.cxx == 'g++'
       run: |
-        cp winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libstdc++-6.dll \
-           winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libgcc_s_seh-1.dll \
-           winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libwinpthread-1.dll \
+        # Adjust the folder name below if the extraction folder is different.
+        cp mingw_extracted/winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libstdc++-6.dll \
+           mingw_extracted/winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libgcc_s_seh-1.dll \
+           mingw_extracted/winlibs-x86_64-posix-seh-gcc-13.3.0-mingw-w64msvcrt-11.0.1-r1/mingw64/bin/libwinpthread-1.dll \
            ${GITHUB_WORKSPACE}/${{ env.ZIP_NAME }}
