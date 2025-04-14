@@ -190,15 +190,25 @@ jobs:
       - name: Install packages
         uses: ./.github/actions/install-packages
 
+      - name: Install SFML (Ubuntu only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsfml-dev
+          echo "SFML_DIR=/usr/lib/x86_64-linux-gnu/cmake/SFML" >> $GITHUB_ENV
+          
+      - name: Install SFML (Windows only)
+        if: runner.os == 'Windows'
+        run: |
+          curl -L -o sfml.zip https://www.sfml-dev.org/files/SFML-2.6.0-windows-vc15-64-bit.zip
+          7z x sfml.zip -osfml
+          echo "SFML_DIR=${{ github.workspace }}/sfml/SFML-2.6.0/lib/cmake/SFML" >> $GITHUB_ENV
+
       - name: Configure CMake
         run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            export SFML_DIR="/usr/lib/x86_64-linux-gnu/cmake/SFML"
-          fi
-
           cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-            -DSFML_DIR=${SFML_DIR}
+          -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+          -DSFML_DIR=$SFML_DIR
 
       - name: Build
         run: |
