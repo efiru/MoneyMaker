@@ -97,6 +97,17 @@ runs:
       shell: bash
       run: brew install sfml
 
+    - name: Check font exists
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        if [[ ! -f build/assets/arial.ttf ]]; then
+          echo "Fontul arial.ttf lipsește în build/assets!"
+          exit 1
+        else
+          echo "Fontul arial.ttf este prezent."
+        fi
+
     - name: Build Project (macOS)
       if: runner.os == 'macOS'
       shell: bash

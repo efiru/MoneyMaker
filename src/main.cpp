@@ -3,6 +3,8 @@
 #include <map>
 #include <algorithm>
 #include <string>
+#include <SFML/Graphics.hpp>
+#include <optional>
 
 enum bancnote {
     UN_LEU,
@@ -282,6 +284,8 @@ public:
     void set_player(const Player &player) {
         this->player = player;
     }
+    Player& getPlayer() { return player; }
+    std::vector<Achievement>& getAchievements() { return achievements; }
     Game() : achievements({
             {"Click Master", "Ai dat 500 de clicks!"},
             {"Intermediate", "Ai ajuns la nivelul 3!"},
@@ -299,9 +303,84 @@ public:
 };
 
 int main() {
-    Player player(1, 0, 0, Bancnota(UN_LEU), false);
+    sf::RenderWindow window(sf::VideoMode({800u, 600u}), sf::String("MoneyMaker"));
+
+    sf::Font font;
+    if (!font.openFromFile("assets/arial.ttf")) {
+        std::cerr << "Eroare la încărcarea fontului\n";
+        return 1;
+    }
+
     Game game;
-    game.set_player(player);
-    game.run();
+
+    std::vector<std::string> options = {
+        "1. Arunca o bancnota",
+        "2. Activeaza DoubleTap",
+        "3. Afiseaza starea jucatorului",
+        "4. Verifica Achievements",
+        "0. Iesire"
+    };
+
+    std::vector<sf::Text> menuItems;
+    for (int i = 0; i < options.size(); ++i) {
+        sf::Text item(font, options[i], 28); // Constructor direct
+        item.setFillColor(sf::Color::White);
+        item.setPosition({100.f, 100.f + i * 60.f});
+        menuItems.push_back(item);
+    }
+
+    bool running = true;
+    while (window.isOpen() && running) {
+        while (auto event = window.pollEvent()) {
+            // Dacă e închidere fereastră
+            if (event->is<sf::Event::Closed>()) {
+                window.close();
+                running = false;
+                break;
+            }
+
+            // Dacă e click stânga
+            if (const auto mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+                if (mouseEvent->button == sf::Mouse::Button::Left) {
+                    sf::Vector2f mousePos(
+                        static_cast<float>(mouseEvent->position.x),
+                        static_cast<float>(mouseEvent->position.y)
+                    );
+
+                    for (int i = 0; i < menuItems.size(); ++i) {
+                        if (menuItems[i].getGlobalBounds().contains(mousePos)) {
+                            switch (i) {
+                                case 0:
+                                    game.getPlayer().aruncaBancnota();
+                                    break;
+                                case 1:
+                                    game.getPlayer().activeazaDoubleTap();
+                                    break;
+                                case 2:
+                                    std::cout << game.getPlayer() << '\n';
+                                    break;
+                                case 3:
+                                    for (auto& ach : game.getAchievements()) {
+                                        ach.checkUnlock(game.getPlayer());
+                                        std::cout << ach << '\n';
+                                    }
+                                    break;
+                                case 4:
+                                    running = false;
+                                    window.close();
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        window.clear(sf::Color(20, 20, 20));
+        for (auto& item : menuItems)
+            window.draw(item);
+        window.display();
+    }
+
     return 0;
 }
