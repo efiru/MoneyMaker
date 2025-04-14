@@ -101,4 +101,5 @@ runs:
       if: runner.os == 'macOS'
       shell: bash
       run: |
-        clang++ -std=c++17 main.cpp -o moneymaker -I/opt/homebrew/include -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system
+        cd $GITHUB_WORKSPACE
+        clang++ -std=c++17 src/main.cpp -o moneymaker -I/opt/homebrew/include -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system
