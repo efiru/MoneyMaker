@@ -161,12 +161,17 @@ public:
         }
     }
     void activeazaDoubleTap() {
-        bancnotaCurenta.downgrade(1);
-        clicksToUpgrade = bancnotaCurenta.valoare1() * 10;
-        clicksCurent = 0;
-        doubleTapUnlocked = true;
-        doubleTapUpgradeCounter = 0;
-        std::cout << "DoubleTap Activat\n";
+        if (bancnotaCurenta.valoare1() > 1 && doubleTapUnlocked == false) {
+            bancnotaCurenta.downgrade(1);
+            clicksToUpgrade = bancnotaCurenta.valoare1() * 10;
+            clicksCurent = 0;
+            doubleTapUnlocked = true;
+            doubleTapUpgradeCounter = 0;
+            std::cout << "DoubleTap Activat\n";
+        }
+        else {
+            std::cout << "Nu poti activa DoubleTap.";
+        }
     }
     void dezactiveazaDoubleTap() {
         doubleTapUnlocked = false;
@@ -278,7 +283,7 @@ public:
         this->player = player;
     }
     Game() : achievements({
-            {"Click Master", "Ai dat 500 de clickuri!"},
+            {"Click Master", "Ai dat 500 de clicks!"},
             {"Intermediate", "Ai ajuns la nivelul 3!"},
             {"Investor", "Ai activat DoubleTap!"}
         }) {}
