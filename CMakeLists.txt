@@ -5,21 +5,32 @@ set(MAIN_EXECUTABLE_NAME "${MAIN_PROJECT_NAME}")
 
 project(${MAIN_PROJECT_NAME})
 
+# C++23
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Fix pentru avertismente macOS
-set(CMAKE_OSX_SYSROOT "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk")
-
-# Include SFML headers și liburi (folosind Homebrew)
-include_directories(/opt/homebrew/include)
-link_directories(/opt/homebrew/lib)
+# macOS sysroot workaround
+if(APPLE)
+    set(CMAKE_OSX_SYSROOT "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk")
+endif()
 
 # Opțional: alte module
 include(cmake/Options.cmake OPTIONAL)
 include(cmake/CompilerFlags.cmake OPTIONAL)
 include(cmake/CopyHelper.cmake OPTIONAL)
+
+# Detectează platforma și setează include/lib
+if(APPLE)
+    include_directories(/opt/homebrew/include)
+    link_directories(/opt/homebrew/lib)
+elseif(UNIX)
+    include_directories(/usr/include)
+    link_directories(/usr/lib)
+elseif(WIN32)
+    include_directories(${CMAKE_SOURCE_DIR}/external/SFML/include)
+    link_directories(${CMAKE_SOURCE_DIR}/external/SFML/lib)
+endif()
 
 # Executabil principal
 add_executable(${MAIN_EXECUTABLE_NAME}
@@ -32,14 +43,14 @@ target_include_directories(${MAIN_EXECUTABLE_NAME}
         PRIVATE generated/include
 )
 
-# Link SFML manual (evităm find_package)
+# Link SFML (manual, evităm find_package)
 target_link_libraries(${MAIN_EXECUTABLE_NAME}
         sfml-graphics
         sfml-window
         sfml-system
 )
 
-# Optional: adaugă sanitizatori
+# Sanitizatori (opțional)
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 
 # Instalează binar și fișiere resurse

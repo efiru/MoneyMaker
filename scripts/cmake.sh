@@ -111,6 +111,19 @@ install() {
           --prefix "${INSTALL_DIR}"
 }
 
+setup_sfml() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    if ! brew list sfml &>/dev/null; then
+      echo "[INFO] SFML not found. Installing via Homebrew..."
+      brew update
+      brew install sfml
+    else
+      echo "[INFO] SFML already installed via Homebrew ✅"
+    fi
+  fi
+}
+
+setup_sfml
 
 case "$1" in
     configure)
