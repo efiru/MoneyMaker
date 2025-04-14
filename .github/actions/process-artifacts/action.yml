@@ -94,9 +94,11 @@ runs:
 
     - name: Install SFML
       if: runner.os == 'macOS'
+      shell: bash
       run: brew install sfml
 
     - name: Build Project (macOS)
       if: runner.os == 'macOS'
+      shell: bash
       run: |
-        clang++ main.cpp -o moneymaker -I/opt/homebrew/include -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system
+        clang++ -std=c++17 main.cpp -o moneymaker -I/opt/homebrew/include -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system
