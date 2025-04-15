@@ -44,22 +44,14 @@ target_include_directories(${MAIN_EXECUTABLE_NAME}
 )
 
 # Link SFML (manual, evităm find_package)
-if(UNIX AND NOT APPLE)
-    # Linux-only SFML setup using pkg-config
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(SFML REQUIRED sfml-graphics sfml-window sfml-system)
 
-    include_directories(${SFML_INCLUDE_DIRS})
-    link_directories(${SFML_LIBRARY_DIRS})
-    target_link_libraries(${MAIN_EXECUTABLE_NAME} ${SFML_LIBRARIES})
-else()
     # macOS and Windows: manual SFML linking
     target_link_libraries(${MAIN_EXECUTABLE_NAME}
             sfml-graphics
             sfml-window
             sfml-system
     )
-endif()
+
 
 # Sanitizatori (opțional)
 set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})

@@ -147,12 +147,12 @@ jobs:
             # This env runs address sanitizers
             runs_asan: false
 
-#          - os: macos-14
-#            c: gcc-13
-#            cxx: g++-13
-#            name: "macOS 14 GCC 13"
-#            # cmake_flags:
-#            # cmake_generator: Ninja
+          #          - os: macos-14
+          #            c: gcc-13
+          #            cxx: g++-13
+          #            name: "macOS 14 GCC 13"
+          #            # cmake_flags:
+          #            # cmake_generator: Ninja
 
           - os: windows-2022
             c: cl
@@ -197,7 +197,6 @@ jobs:
           sudo apt-get install -y \
             cmake \
             git \
-            pkg-config \
             libx11-dev \
             libxrandr-dev \
             libudev-dev \
@@ -221,13 +220,11 @@ jobs:
             libxcursor-dev
 
           git clone --branch 3.0.x https://github.com/SFML/SFML.git
-          cmake -S SFML -B SFML/build -DCMAKE_INSTALL_PREFIX=/usr/local
+          cmake -S SFML -B SFML/build
           sudo cmake --build SFML/build --target install
-
-          echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
           echo "SFML_DIR=/usr/local/lib/cmake/SFML" >> $GITHUB_ENV
-          
-          
+
+
       - name: Install SFML 3.0 (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -274,3 +271,4 @@ jobs:
       - name: Create release
         uses: ./.github/actions/create-release
         if: startsWith(github.ref, 'refs/tags/')
+
