@@ -303,69 +303,103 @@ public:
     }
 };
 
-int main() {
-    sf::RenderWindow window(sf::VideoMode({800u, 600u}), sf::String("MoneyMaker"));
 
+int main() {
+    // Fullscreen setup
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+    sf::RenderWindow window(desktop, "MoneyMaker", sf::Style::Default);
+    window.setFramerateLimit(60);
+
+    // Load font
     sf::Font font;
     if (!font.openFromFile("assets/arial.ttf")) {
         std::cerr << "Eroare la încărcarea fontului\n";
         return 1;
     }
 
+    // Game setup
     Game game;
 
+    // Title text (FIXED order of arguments)
+    sf::Text title(font, "💰 MoneyMaker 💰", 64);
+    title.setFillColor(sf::Color::Cyan);
+    title.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    title.setPosition({250.f, 40.f});
+    // Menu options
     std::vector<std::string> options = {
-        "1. Arunca o bancnota",
-        "2. Activeaza DoubleTap",
-        "3. Afiseaza starea jucatorului",
-        "4. Verifica Achievements",
-        "0. Iesire"
+        "1. Arunca o bancnota 💸",
+        "2. Activeaza DoubleTap ⚡",
+        "3. Starea Jucatorului 📊",
+        "4. Verifica Achievements 🏆",
+        "0. Iesire ❌"
     };
 
     std::vector<sf::Text> menuItems;
-    for (int i = 0; i < options.size(); ++i) {
-        sf::Text item(font, options[i], 28); // Constructor direct
+    for (int i = 0; i < static_cast<int>(options.size()); ++i) {
+        sf::Text item(font, options[i], 40); // FIXED: font first
         item.setFillColor(sf::Color::White);
-        item.setPosition({100.f, 100.f + i * 60.f});
+        item.setPosition({100.f, 150.f + i * 80.f});
         menuItems.push_back(item);
     }
+
+    // Logs
+    std::vector<sf::Text> logs;
+    auto addLog = [&](const std::string& message, sf::Color color = sf::Color::White) {
+        sf::Text log(font, message, 28); // FIXED: font first
+        log.setFillColor(color);
+        logs.push_back(log);
+        if (logs.size() > 6) logs.erase(logs.begin());
+    };
 
     bool running = true;
     while (window.isOpen() && running) {
         while (auto event = window.pollEvent()) {
-            // Dacă e închidere fereastră
             if (event->is<sf::Event::Closed>()) {
                 window.close();
                 running = false;
                 break;
             }
 
-            // Dacă e click stânga
             if (const auto mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
                 if (mouseEvent->button == sf::Mouse::Button::Left) {
-                    sf::Vector2f mousePos(
-                        static_cast<float>(mouseEvent->position.x),
-                        static_cast<float>(mouseEvent->position.y)
-                    );
+                    sf::Vector2f mousePos(mouseEvent->position);
 
-                    for (int i = 0; i < menuItems.size(); ++i) {
+                    for (int i = 0; i < static_cast<int>(menuItems.size()); ++i) {
                         if (menuItems[i].getGlobalBounds().contains(mousePos)) {
                             switch (i) {
-                                case 0:
+                                case 0: {
+                                    int before = game.getPlayer().getClicksTotal();
                                     game.getPlayer().aruncaBancnota();
+                                    int after = game.getPlayer().getClicksTotal();
+                                    int diff = after - before;
+                                    addLog("+" + std::to_string(diff) + " LEI aruncati!", sf::Color::Green);
                                     break;
-                                case 1:
+                                }
+                                case 1: {
+                                    bool before = game.getPlayer().getDoubleTap();
                                     game.getPlayer().activeazaDoubleTap();
+                                    bool after = game.getPlayer().getDoubleTap();
+                                    if (after && !before)
+                                        addLog("DoubleTap ACTIVAT! ⚡", sf::Color::Yellow);
+                                    else
+                                        addLog("DoubleTap indisponibil 😕", sf::Color::Red);
                                     break;
-                                case 2:
-                                    std::cout << game.getPlayer() << '\n';
+                                }
+                                case 2: {
+                                    std::ostringstream oss;
+                                    oss << game.getPlayer();
+                                    addLog(oss.str(), sf::Color::Cyan);
                                     break;
-                                case 3:
+                                }
+                                case 3: {
                                     for (auto& ach : game.getAchievements()) {
                                         ach.checkUnlock(game.getPlayer());
-                                        std::cout << ach;
+                                        std::ostringstream oss;
+                                        oss << ach;
+                                        addLog(oss.str(), ach.isUnlocked() ? sf::Color::Green : sf::Color(150, 150, 150));
                                     }
                                     break;
+                                }
                                 case 4:
                                     running = false;
                                     window.close();
@@ -377,9 +411,18 @@ int main() {
             }
         }
 
-        window.clear(sf::Color(20, 20, 20));
+        // Rendering
+        window.clear(sf::Color(30, 30, 30));
+        window.draw(title);
+
         for (auto& item : menuItems)
             window.draw(item);
+
+        for (size_t i = 0; i < logs.size(); ++i) {
+            logs[i].setPosition({50.f, static_cast<float>(window.getSize().y - 240 + i * 30)});
+            window.draw(logs[i]);
+        }
+
         window.display();
     }
 
