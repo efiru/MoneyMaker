@@ -363,7 +363,7 @@ int main() {
                                 case 3:
                                     for (auto& ach : game.getAchievements()) {
                                         ach.checkUnlock(game.getPlayer());
-                                        std::cout << ach << '\n';
+                                        std::cout << ach;
                                     }
                                     break;
                                 case 4:
