@@ -217,11 +217,15 @@ jobs:
             libxkbcommon-dev \
             libxkbcommon-x11-dev \
             libxi-dev \
-            libxcursor-dev
+            libxcursor-dev \
+            pkg-config
 
           git clone --branch 3.0.x https://github.com/SFML/SFML.git
-          cmake -S SFML -B SFML/build
+          cmake -S SFML -B SFML/build -DCMAKE_INSTALL_PREFIX=/usr/local
           sudo cmake --build SFML/build --target install
+
+          # 🧩 NEW LINE: export pkg-config path so `pkg_check_modules` works
+          echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
           echo "SFML_DIR=/usr/local/lib/cmake/SFML" >> $GITHUB_ENV
           
           
