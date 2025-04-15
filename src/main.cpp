@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <optional>
 
+
 enum bancnote {
     UN_LEU,
     CINCI_LEI,
