@@ -20,6 +20,8 @@ include(cmake/Options.cmake OPTIONAL)
 include(cmake/CompilerFlags.cmake OPTIONAL)
 include(cmake/CopyHelper.cmake OPTIONAL)
 
+find_package(nlohmann_json CONFIG REQUIRED)
+
 # Detectează platforma și setează include/lib
 if(APPLE)
     include_directories(/opt/homebrew/include)
@@ -42,15 +44,17 @@ add_executable(${MAIN_EXECUTABLE_NAME}
 target_include_directories(${MAIN_EXECUTABLE_NAME}
         PRIVATE generated/include
 )
+target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 # Link SFML (manual, evităm find_package)
 
     # macOS and Windows: manual SFML linking
-    target_link_libraries(${MAIN_EXECUTABLE_NAME}
-            sfml-graphics
-            sfml-window
-            sfml-system
-    )
+target_link_libraries(${MAIN_EXECUTABLE_NAME}
+        PRIVATE
+        sfml-graphics
+        sfml-window
+        sfml-system
+)
 
 
 # Sanitizatori (opțional)

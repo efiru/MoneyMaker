@@ -5,6 +5,9 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <optional>
+#include <nlohmann/json.hpp>
+#include <fstream>
+using json = nlohmann::json;
 
 
 enum bancnote {
@@ -310,6 +313,50 @@ public:
     }
 };
 
+void to_json(json& j, const Player& p) {
+    j = json{
+            {"level", p.getLevel()},
+            {"clicksCurent", p.getClicks()},
+            {"clicksTotal", p.getClicksTotal()},
+            {"banknote", p.getCurrentBanknoteValue()},
+            {"doubleTap", p.getDoubleTap()}
+    };
+}
+
+void from_json(const json& j, Player& p) {
+    int level = j.at("level").get<int>();
+    int clicksCurent = j.at("clicksCurent").get<int>();
+    int clicksTotal = j.at("clicksTotal").get<int>();
+    int banknoteVal = j.at("banknote").get<int>();
+    bool doubleTap = j.at("doubleTap").get<bool>();
+
+    // Find the matching bancnote type by value
+    bancnote tip = UN_LEU;
+    for (const auto& pair : Valori) {
+        if (pair.second == banknoteVal) {
+            tip = pair.first;
+            break;
+        }
+    }
+
+    p = Player(level, clicksCurent, clicksTotal, Bancnota(tip), doubleTap);
+}
+
+void savePlayer(const Player& player, const std::string& filename = "player_save.json") {
+    json j = player;
+    std::ofstream file(filename);
+    file << j.dump(4);  // pretty print with 4 spaces
+}
+
+bool loadPlayer(Player& player, const std::string& filename = "player_save.json") {
+    std::ifstream file(filename);
+    if (!file.is_open()) return false;
+    json j;
+    file >> j;
+    player = j.get<Player>();
+    return true;
+}
+
 
 int main() {
     // Fullscreen setup
@@ -326,6 +373,12 @@ int main() {
 
     // Game setup
     Game game;
+
+    if (loadPlayer(game.getPlayer())) {
+        std::cout << "✔️ Player loaded from save.\n";
+    } else {
+        std::cout << "⚠️ No save found. Starting fresh.\n";
+    }
 
     // Title
     sf::Text title(font, " MoneyMaker ", 64);
@@ -470,6 +523,9 @@ int main() {
 
         window.display();
     }
+
+    savePlayer(game.getPlayer());
+    std::cout << "💾 Player progress saved!\n";
 
     return 0;
 }
