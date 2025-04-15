@@ -38,6 +38,14 @@ endif()
 add_executable(${MAIN_EXECUTABLE_NAME}
         src/main.cpp
         generated/src/Helper.cpp
+        src/Bancnota.h
+        src/Bancnota.cpp
+        src/Player.h
+        src/Player.cpp
+        src/Achievement.h
+        src/Achievement.cpp
+        src/Game.h
+        src/Game.cpp
 )
 
 # Include foldere suplimentare
