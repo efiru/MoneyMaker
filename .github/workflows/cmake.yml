@@ -215,7 +215,9 @@ jobs:
             libxcb-keysyms1-dev \
             libxcb-xkb-dev \
             libxkbcommon-dev \
-            libxkbcommon-x11-dev
+            libxkbcommon-x11-dev \
+            libxi-dev \
+            libxcursor-dev
 
           git clone --branch 3.0.x https://github.com/SFML/SFML.git
           cmake -S SFML -B SFML/build
