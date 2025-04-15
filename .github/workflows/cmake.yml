@@ -194,10 +194,31 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake libx11-dev libxrandr-dev libxsfml-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libgl1-mesa-dev libfreetype6-dev libjpeg-dev libxcb1-dev libxcb-image0-dev libxcb-util0-dev libx11-xcb-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev git
+          sudo apt-get install -y \
+            cmake \
+            git \
+            libx11-dev \
+            libxrandr-dev \
+            libudev-dev \
+            libopenal-dev \
+            libflac-dev \
+            libvorbis-dev \
+            libgl1-mesa-dev \
+            libfreetype6-dev \
+            libjpeg-dev \
+            libxcb1-dev \
+            libxcb-image0-dev \
+            libxcb-util0-dev \
+            libx11-xcb-dev \
+            libxcb-randr0-dev \
+            libxcb-icccm4-dev \
+            libxcb-keysyms1-dev \
+            libxcb-xkb-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev
 
           git clone --branch 3.0.x https://github.com/SFML/SFML.git
-          cmake -S SFML -B SFML/build -DSFML_BUILD_AUDIO=ON -DSFML_BUILD_GRAPHICS=ON -DSFML_BUILD_WINDOW=ON -DSFML_BUILD_SYSTEM=ON -DSFML_BUILD_NETWORK=OFF -DSFML_USE_SYSTEM_DEPS=ON
+          cmake -S SFML -B SFML/build
           sudo cmake --build SFML/build --target install
           echo "SFML_DIR=/usr/local/lib/cmake/SFML" >> $GITHUB_ENV
           
