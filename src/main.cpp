@@ -195,6 +195,13 @@ public:
     [[nodiscard]] bool getDoubleTap() const {
         return doubleTapUnlocked;
     }
+    [[nodiscard]] int getCurrentClickLimit() const {
+        return clicksToUpgrade;
+    }
+
+    [[nodiscard]] int getCurrentBanknoteValue() const {
+        return bancnotaCurenta.valoare1();
+    }
     friend std::ostream& operator<<(std::ostream& os, const Player& p) {
         os << "Nivel: " << p.level
            << ", Clickuri Curente: " << p.clicksCurent
@@ -320,23 +327,24 @@ int main() {
     // Game setup
     Game game;
 
-    // Title text (FIXED order of arguments)
-    sf::Text title(font, "💰 MoneyMaker 💰", 64);
+    // Title
+    sf::Text title(font, " MoneyMaker ", 64);
     title.setFillColor(sf::Color::Cyan);
     title.setStyle(sf::Text::Bold | sf::Text::Underlined);
     title.setPosition({250.f, 40.f});
+
     // Menu options
     std::vector<std::string> options = {
-        "1. Arunca o bancnota 💸",
-        "2. Activeaza DoubleTap ⚡",
-        "3. Starea Jucatorului 📊",
-        "4. Verifica Achievements 🏆",
-        "0. Iesire ❌"
+        "1. Arunca o bancnota ",
+        "2. Activeaza DoubleTap ",
+        "3. Starea Jucatorului ",
+        "4. Verifica Achievements ",
+        "0. Iesire "
     };
 
     std::vector<sf::Text> menuItems;
     for (int i = 0; i < static_cast<int>(options.size()); ++i) {
-        sf::Text item(font, options[i], 40); // FIXED: font first
+        sf::Text item(font, options[i], 40);
         item.setFillColor(sf::Color::White);
         item.setPosition({100.f, 150.f + i * 80.f});
         menuItems.push_back(item);
@@ -345,14 +353,45 @@ int main() {
     // Logs
     std::vector<sf::Text> logs;
     auto addLog = [&](const std::string& message, sf::Color color = sf::Color::White) {
-        sf::Text log(font, message, 28); // FIXED: font first
+        sf::Text log(font, message, 28);
         log.setFillColor(color);
         logs.push_back(log);
         if (logs.size() > 6) logs.erase(logs.begin());
     };
 
+    // HUD elements
+    sf::Text levelText(font, "", 28);
+    sf::Text progressText(font, "", 28);
+    sf::Text doubleTapText(font, "", 28);
+    sf::Text bancnotaText(font, "", 28);
+
+    levelText.setFillColor(sf::Color::Green);
+    progressText.setFillColor(sf::Color::Yellow);
+    doubleTapText.setFillColor(sf::Color::Magenta);
+    bancnotaText.setFillColor(sf::Color::Cyan);
+
     bool running = true;
     while (window.isOpen() && running) {
+        // Update HUD every frame
+        levelText.setString("Level: " + std::to_string(game.getPlayer().getLevel()));
+
+        progressText.setString(
+            "Clicks: " + std::to_string(game.getPlayer().getClicks()) +
+            " / " + std::to_string(game.getPlayer().getCurrentClickLimit())
+        );
+
+        doubleTapText.setString("DoubleTap: " + std::string(game.getPlayer().getDoubleTap() ? "ON ⚡" : "OFF"));
+
+        bancnotaText.setString(
+            std::to_string(game.getPlayer().getCurrentBanknoteValue()) + " LEI"
+        );
+
+        float hudX = static_cast<float>(window.getSize().x) - 300.f;
+        levelText.setPosition(sf::Vector2f(hudX, 30.f));
+        progressText.setPosition(sf::Vector2f(hudX, 70.f));
+        doubleTapText.setPosition(sf::Vector2f(hudX, 110.f));
+        bancnotaText.setPosition(sf::Vector2f(hudX, 150.f));
+
         while (auto event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
@@ -372,7 +411,7 @@ int main() {
                                     game.getPlayer().aruncaBancnota();
                                     int after = game.getPlayer().getClicksTotal();
                                     int diff = after - before;
-                                    addLog("+" + std::to_string(diff) + " LEI aruncati!", sf::Color::Green);
+                                    addLog("+" + std::to_string(diff), sf::Color::Green);
                                     break;
                                 }
                                 case 1: {
@@ -422,6 +461,12 @@ int main() {
             logs[i].setPosition({50.f, static_cast<float>(window.getSize().y - 240 + i * 30)});
             window.draw(logs[i]);
         }
+
+        // Draw HUD
+        window.draw(levelText);
+        window.draw(progressText);
+        window.draw(doubleTapText);
+        window.draw(bancnotaText);
 
         window.display();
     }
