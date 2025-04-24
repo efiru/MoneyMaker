@@ -10,6 +10,10 @@
 #include <optional>
 #include <nlohmann/json.hpp>
 #include <fstream>
+
+#include "BanknoteUpgrade.h"
+#include "DoubleTapUpgrade.h"
+#include "LevelUpgrade.h"
 using json = nlohmann::json;
 
 
@@ -20,7 +24,8 @@ void to_json(json& j, const Player& p) {
             {"clicksTotal", p.getClicksTotal()},
             {"banknote", p.getCurrentBanknoteValue()},
             {"doubleTap", p.getDoubleTap()},
-               {"usedBanknoteUpgrade", p.getBanknoteUpgradeUsed()}
+               {"usedBanknoteUpgrade", p.getBanknoteUpgradeUsed()},
+                {"usedLevelUpgrade", p.getLevelUpgradeUsed()}
     };
 }
 
@@ -31,9 +36,8 @@ void from_json(const json& j, Player& p) {
     int banknoteVal = j.at("banknote").get<int>();
     bool doubleTap = j.at("doubleTap").get<bool>();
     bool usedUpgrade = j.at("usedBanknoteUpgrade").get<bool>();
-    p.setBanknoteUpgradeUsed(usedUpgrade);
+    bool usedLevel = j.at("usedLevelUpgrade").get<bool>();
 
-    // Find the matching bancnote type by value
     bancnote tip = UN_LEU;
     for (const auto& pair : Valori) {
         if (pair.second == banknoteVal) {
@@ -43,6 +47,8 @@ void from_json(const json& j, Player& p) {
     }
 
     p = Player(level, clicksCurent, clicksTotal, Bancnota(tip), doubleTap);
+    p.setBanknoteUpgradeUsed(usedUpgrade);
+    p.setLevelUpgradeUsed(usedLevel);
 }
 
 void savePlayer(const Player& player, const std::string& filename = "player_save.json") {
@@ -96,7 +102,9 @@ int main() {
         "2. Activeaza DoubleTap ",
         "3. Starea Jucatorului ",
         "4. Verifica Achievements ",
-        "5. Activeaza BanknoteUpgrade "
+        "5. Activeaza LevelUpgrade ",
+        "6. Activeaza BanknoteUpgrade ",
+        "7. Activeaza TOATE Upgradeurile disponibile"
     };
 
     std::vector<sf::Text> menuItems;
@@ -110,10 +118,28 @@ int main() {
     // Logs
     std::vector<sf::Text> logs;
     auto addLog = [&](const std::string& message, sf::Color color = sf::Color::White) {
-        sf::Text log(font, message, 28);
-        log.setFillColor(color);
-        logs.push_back(log);
-        if (logs.size() > 6) logs.erase(logs.begin());
+        std::string firstLine = message;
+        std::string secondLine;
+
+        if (message.length() > 50) {  // pragul poate fi ajustat
+            size_t splitPos = message.find_last_of(' ', 50); // sparge la ultimul spațiu înainte de 50
+            if (splitPos != std::string::npos) {
+                firstLine = message.substr(0, splitPos);
+                secondLine = message.substr(splitPos + 1);
+            }
+        }
+
+        sf::Text log1(font, firstLine, 28);
+        log1.setFillColor(color);
+        logs.push_back(log1);
+
+        if (!secondLine.empty()) {
+            sf::Text log2(font, secondLine, 28);
+            log2.setFillColor(color);
+            logs.push_back(log2);
+        }
+
+        while (logs.size() > 6) logs.erase(logs.begin());
     };
 
     // HUD elements
@@ -176,13 +202,13 @@ int main() {
                                     break;
                                 }
                                 case 2: {
-                                    bool before = game.getPlayer().getDoubleTap();
-                                    game.getPlayer().activeazaDoubleTap();
-                                    bool after = game.getPlayer().getDoubleTap();
-                                    if (after && !before)
-                                        addLog("DoubleTap ACTIVAT! ⚡", sf::Color::Yellow);
-                                    else
-                                        addLog("DoubleTap indisponibil 😕", sf::Color::Red);
+                                    try {
+                                        DoubleTapUpgrade upgrade;
+                                        upgrade.aplica(game.getPlayer());
+                                        addLog("DoubleTap ACTIVAT!", sf::Color::Yellow);
+                                    } catch (const std::exception& e) {
+                                        addLog(std::string("") + e.what(), sf::Color::Red);
+                                    }
                                     break;
                                 }
                                 case 3: {
@@ -202,9 +228,28 @@ int main() {
                                 }
                                 case 5: {
                                     try {
+                                        LevelUpgrade upgrade;
+                                        upgrade.aplica(game.getPlayer());
+                                        addLog("🏆 LevelUpgrade activat!", sf::Color::Green);
+                                    } catch (const std::exception& e) {
+                                        addLog(std::string("❌ ") + e.what(), sf::Color::Red);
+                                    }
+                                    break;
+                                }
+                                case 6: {
+                                    try {
                                         BanknoteUpgrade upgrade;
                                         upgrade.aplica(game.getPlayer());
-                                        addLog("✅ BanknoteUpgrade activat! 🤑", sf::Color::Yellow);
+                                        addLog("💸 BanknoteUpgrade activat!", sf::Color::Yellow);
+                                    } catch (const std::exception& e) {
+                                        addLog(std::string("❌ ") + e.what(), sf::Color::Red);
+                                    }
+                                    break;
+                                }
+                                case 7: {
+                                    try {
+                                        game.activeazaToateUpgradeurile();
+                                        addLog("🎯 Toate upgrade-urile disponibile au fost activate!", sf::Color::Green);
                                     } catch (const std::exception& e) {
                                         addLog(std::string("❌ ") + e.what(), sf::Color::Red);
                                     }
@@ -224,8 +269,9 @@ int main() {
         for (auto& item : menuItems)
             window.draw(item);
 
+
         for (size_t i = 0; i < logs.size(); ++i) {
-            logs[i].setPosition({50.f, static_cast<float>(window.getSize().y - 240 + i * 30)});
+            logs[i].setPosition({static_cast<float>(window.getSize().x) - 700.f, static_cast<float>(window.getSize().y - 240 + i * 30)});
             window.draw(logs[i]);
         }
 

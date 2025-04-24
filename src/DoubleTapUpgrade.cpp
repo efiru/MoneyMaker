@@ -4,13 +4,15 @@
 DoubleTapUpgrade::DoubleTapUpgrade(): Upgrade("DoubleTap"){}
 
 void DoubleTapUpgrade::aplica(Player& player) {
-    if (player.getCurrentBanknoteValue() > 1 && !player.getDoubleTap()) {
-        player.activeazaDoubleTap();
-        std::cout << "Upgrade aplicat: DoubleTap activat!\n";
+    if (player.getDoubleTap()) {
+        throw std::runtime_error("DoubleTap este deja activat.");
     }
-    else {
-        std:: cout << "Nu poti activa DoubleTap.\n";
+
+    if (player.getCurrentBanknoteValue() <= 1) {
+        throw std::runtime_error("Nu poti activa DoubleTap cu o bancnota de 1 leu.");
     }
+
+    player.activeazaDoubleTap();
 }
 
 std::unique_ptr<Upgrade> DoubleTapUpgrade::clone() const {

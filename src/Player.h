@@ -23,6 +23,10 @@ public:
     ~Player();
 
     bool hasUsedBanknoteUpgrade = false;
+    bool usedLevelUpgrade = false;
+
+    bool getLevelUpgradeUsed() const;
+    void setLevelUpgradeUsed(bool used);
 
     bool getBanknoteUpgradeUsed() const;
     void setBanknoteUpgradeUsed(bool);

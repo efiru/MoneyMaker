@@ -1,13 +1,42 @@
 #include "Game.h"
 #include "DoubleTapUpgrade.h"
 #include "LevelUpgrade.h"
+#include "BanknoteUpgrade.h"
 #include <iostream>
+#include <memory>
 
 Game::Game() : achievements({
     {"Click Master", "Ai dat 500 de clicks!"},
     {"Intermediate", "Ai ajuns la nivelul 3!"},
     {"Investor", "Ai activat DoubleTap!"}
-}) {}
+}) {
+    initUpgrades();
+}
+
+void Game::initUpgrades() {
+    upgrades.push_back(std::make_unique<DoubleTapUpgrade>());
+    upgrades.push_back(std::make_unique<LevelUpgrade>());
+    upgrades.push_back(std::make_unique<BanknoteUpgrade>());
+}
+
+void Game::activeazaToateUpgradeurile() {
+    for (const auto& upgrade : upgrades) {
+        try {
+            upgrade->aplica(player);
+
+            if (auto* dbl = dynamic_cast<DoubleTapUpgrade*>(upgrade.get())) {
+                std::cout << "[Upgrade Info] Activat DoubleTapUpgrade\n";
+            } else if (auto* lvl = dynamic_cast<LevelUpgrade*>(upgrade.get())) {
+                std::cout << "[Upgrade Info] Activat LevelUpgrade\n";
+            } else if (auto* bnk = dynamic_cast<BanknoteUpgrade*>(upgrade.get())) {
+                std::cout << "[Upgrade Info] Activat BanknoteUpgrade\n";
+            }
+
+        } catch (const std::exception& e) {
+            std::cout << "❌ Upgrade eșuat: " << e.what() << "\n";
+        }
+    }
+}
 
 void Game::afiseazaMeniu() const {
     std::cout << "\n=== MENIU ===\n";
@@ -17,6 +46,7 @@ void Game::afiseazaMeniu() const {
     std::cout << "4. Verifica Achievements\n";
     std::cout << "5. Activeaza LevelUpgrade (bonus la 1000 clickuri totale)\n";
     std::cout << "6. Activeaza BanknoteUpgrade (cost 250 clicks)\n";
+    std::cout << "7. Activeaza toate upgrade-urile disponibile\n";
     std::cout << "0. Iesire\n";
     std::cout << "Introdu optiunea: ";
 }
@@ -25,7 +55,7 @@ void Game::proceseazaOptiune(int optiune) {
     switch (optiune) {
         case 1:
             player.aruncaBancnota();
-        break;
+            break;
         case 2: {
             DoubleTapUpgrade upgrade;
             upgrade.aplica(player);
@@ -33,12 +63,13 @@ void Game::proceseazaOptiune(int optiune) {
         }
         case 3:
             std::cout << player << '\n';
-        break;
+            break;
         case 4:
             for (auto& ach : achievements) {
                 ach.checkUnlock(player);
                 std::cout << ach << '\n';
             }
+            break;
         case 5: {
             LevelUpgrade upgrade;
             upgrade.aplica(player);
@@ -54,10 +85,14 @@ void Game::proceseazaOptiune(int optiune) {
             }
             break;
         }
+        case 7: {
+            activeazaToateUpgradeurile();
+            break;
+        }
         case 0:
             std::cout << "Iesire...\n";
-        running = false;
-        break;
+            running = false;
+            break;
         default:
             std::cout << "Optiune invalida.\n";
     }

@@ -25,6 +25,14 @@ bool Player::posibilUpgrade() const {
     return clicksCurent >= clicksToUpgrade;
 }
 
+bool Player::getLevelUpgradeUsed() const {
+    return usedLevelUpgrade;
+}
+
+void Player::setLevelUpgradeUsed(bool used) {
+    usedLevelUpgrade = used;
+}
+
 bool Player::getBanknoteUpgradeUsed() const {
     return hasUsedBanknoteUpgrade;
 }
@@ -88,10 +96,9 @@ void Player::dezactiveazaDoubleTap() {
     doubleTapUpgradeCounter = 0;
     std::cout << "DoubleTap Deactivat\n";
 }
-
 void Player::aplicaBonusLevelUpgrade() {
-    bancnotaCurenta.upgrade(1);
-    std::cout << "[BONUS] Bancnota upgradată ca recompensă pentru progres!\n";
+    level++;
+    std::cout << "[BONUS] Ai primit un nivel bonus ca recompensă pentru progres!\n";
 }
 
 void Player::reset() {
