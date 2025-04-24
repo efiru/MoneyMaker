@@ -2,21 +2,23 @@
 #include "Bancnota.h"
 #include <iostream>
 #include <stdexcept>
+#include "UpgradeException.h"
+
 
 BanknoteUpgrade::BanknoteUpgrade()
     : Upgrade("Banknote Upgrade"), folosita(false) {}
 
 void BanknoteUpgrade::aplica(Player& player) {
     if (folosita) {
-        throw std::runtime_error("Acest upgrade a fost deja folosit!");
+        throw UpgradeAlreadyUsedException();
     }
 
     if (player.getBanknoteUpgradeUsed()) {
-        throw std::runtime_error("Acest upgrade a fost deja activat!");
+        throw UpgradeAlreadyUsedException();
     }
 
     if (player.getClicksTotal() < 250) {
-        throw std::runtime_error("Ai nevoie de 250 clickuri totale pentru a activa acest upgrade!");
+        throw UpgradeInsufficientClicksException();
     }
 
     player.setBancnota(Bancnota(CINCIZECI_LEI));

@@ -13,7 +13,9 @@
 
 #include "BanknoteUpgrade.h"
 #include "DoubleTapUpgrade.h"
+#include "JsonException.h"
 #include "LevelUpgrade.h"
+#include "UpgradeException.h"
 using json = nlohmann::json;
 
 
@@ -53,17 +55,31 @@ void from_json(const json& j, Player& p) {
 
 void savePlayer(const Player& player, const std::string& filename = "player_save.json") {
     json j = player;
+
     std::ofstream file(filename);
-    file << j.dump(4);  // pretty print with 4 spaces
+    if (!file.is_open())
+        throw JsonWriteException();
+
+    try {
+        file << j.dump(4);
+    } catch (...) {
+        throw JsonWriteException();
+    }
 }
 
-bool loadPlayer(Player& player, const std::string& filename = "player_save.json") {
+void loadPlayer(Player& player, const std::string& filename = "player_save.json") {
     std::ifstream file(filename);
-    if (!file.is_open()) return false;
+    if (!file.is_open())
+        throw JsonFileNotFoundException();
+
     json j;
-    file >> j;
+    try {
+        file >> j;
+    } catch (...) {
+        throw JsonParseException();
+    }
+
     player = j.get<Player>();
-    return true;
 }
 
 
@@ -83,10 +99,14 @@ int main() {
     // Game setup
     Game game;
 
-    if (loadPlayer(game.getPlayer())) {
-        std::cout << "✔️ Player loaded from save.\n";
-    } else {
-        std::cout << "⚠️ No save found. Starting fresh.\n";
+    try {
+        loadPlayer(game.getPlayer());
+        std::cout << "Player loaded from save.\n";
+    } catch (const JsonFileNotFoundException& e) {
+        std::cout << e.what() << " Se va porni un joc nou.\n";
+    } catch (const JsonParseException& e) {
+        std::cerr << e.what() << " Datele sunt corupte.\n";
+        return 1;
     }
 
     // Title
@@ -189,73 +209,88 @@ int main() {
                     for (int i = 0; i < static_cast<int>(menuItems.size()); ++i) {
                         if (menuItems[i].getGlobalBounds().contains(mousePos)) {
                             switch (i) {
-                                case 0:
-                                    running = false;
-                                window.close();
-                                break;
-                                case 1: {
-                                    int before = game.getPlayer().getClicksTotal();
-                                    game.getPlayer().aruncaBancnota();
-                                    int after = game.getPlayer().getClicksTotal();
-                                    int diff = after - before;
-                                    addLog("+" + std::to_string(diff), sf::Color::Green);
-                                    break;
-                                }
-                                case 2: {
-                                    try {
-                                        DoubleTapUpgrade upgrade;
-                                        upgrade.aplica(game.getPlayer());
-                                        addLog("DoubleTap ACTIVAT!", sf::Color::Yellow);
-                                    } catch (const std::exception& e) {
-                                        addLog(std::string("") + e.what(), sf::Color::Red);
+                                    case 0:
+                                        running = false;
+                                        window.close();
+                                        break;
+
+                                    case 1: {
+                                        int before = game.getPlayer().getClicksTotal();
+                                        game.getPlayer().aruncaBancnota();
+                                        int after = game.getPlayer().getClicksTotal();
+                                        int diff = after - before;
+                                        addLog("+" + std::to_string(diff), sf::Color::Green);
+                                        break;
                                     }
-                                    break;
-                                }
-                                case 3: {
-                                    std::ostringstream oss;
-                                    oss << game.getPlayer();
-                                    addLog(oss.str(), sf::Color::Cyan);
-                                    break;
-                                }
-                                case 4: {
-                                    for (auto& ach : game.getAchievements()) {
-                                        ach.checkUnlock(game.getPlayer());
+
+                                    case 2: {
+                                        try {
+                                            DoubleTapUpgrade upgrade;
+                                            upgrade.aplica(game.getPlayer());
+                                            addLog("DoubleTap activat cu succes.", sf::Color::Yellow);
+                                        } catch (const UpgradeAlreadyUsedException& e) {
+                                            addLog("Eroare: " + std::string(e.what()), sf::Color::Red);
+                                        } catch (const UpgradeRequirementException& e) {
+                                            addLog("Conditii insuficiente: " + std::string(e.what()), sf::Color::Red);
+                                        }
+                                        break;
+                                    }
+
+                                    case 3: {
                                         std::ostringstream oss;
-                                        oss << ach;
-                                        addLog(oss.str(), ach.isUnlocked() ? sf::Color::Green : sf::Color(150, 150, 150));
+                                        oss << game.getPlayer();
+                                        addLog(oss.str(), sf::Color::Cyan);
+                                        break;
                                     }
-                                    break;
-                                }
-                                case 5: {
-                                    try {
-                                        LevelUpgrade upgrade;
-                                        upgrade.aplica(game.getPlayer());
-                                        addLog("🏆 LevelUpgrade activat!", sf::Color::Green);
-                                    } catch (const std::exception& e) {
-                                        addLog(std::string("❌ ") + e.what(), sf::Color::Red);
+
+                                    case 4: {
+                                        for (auto& ach : game.getAchievements()) {
+                                            ach.checkUnlock(game.getPlayer());
+                                            std::ostringstream oss;
+                                            oss << ach;
+                                            addLog(oss.str(), ach.isUnlocked() ? sf::Color::Green : sf::Color(150, 150, 150));
+                                        }
+                                        break;
                                     }
-                                    break;
-                                }
-                                case 6: {
-                                    try {
-                                        BanknoteUpgrade upgrade;
-                                        upgrade.aplica(game.getPlayer());
-                                        addLog("💸 BanknoteUpgrade activat!", sf::Color::Yellow);
-                                    } catch (const std::exception& e) {
-                                        addLog(std::string("❌ ") + e.what(), sf::Color::Red);
+
+                                    case 5: {
+                                        try {
+                                            LevelUpgrade upgrade;
+                                            upgrade.aplica(game.getPlayer());
+                                            addLog("LevelUpgrade activat.", sf::Color::Green);
+                                        } catch (const UpgradeAlreadyUsedException& e) {
+                                            addLog("Eroare: " + std::string(e.what()), sf::Color::Red);
+                                        } catch (const UpgradeRequirementException& e) {
+                                            addLog("Conditii insuficiente: " + std::string(e.what()), sf::Color::Red);
+                                        }
+                                        break;
                                     }
-                                    break;
-                                }
-                                case 7: {
-                                    try {
-                                        game.activeazaToateUpgradeurile();
-                                        addLog("🎯 Toate upgrade-urile disponibile au fost activate!", sf::Color::Green);
-                                    } catch (const std::exception& e) {
-                                        addLog(std::string("❌ ") + e.what(), sf::Color::Red);
+
+                                    case 6: {
+                                        try {
+                                            BanknoteUpgrade upgrade;
+                                            upgrade.aplica(game.getPlayer());
+                                            addLog("BanknoteUpgrade activat cu succes.", sf::Color::Yellow);
+                                        } catch (const UpgradeAlreadyUsedException& e) {
+                                            addLog("Eroare: " + std::string(e.what()), sf::Color::Red);
+                                        } catch (const UpgradeRequirementException& e) {
+                                            addLog("Conditii insuficiente: " + std::string(e.what()), sf::Color::Red);
+                                        } catch (const UpgradeInsufficientClicksException& e) {
+                                            addLog("Clickuri insuficiente: " + std::string(e.what()), sf::Color::Red);
+                                        }
+                                        break;
                                     }
-                                    break;
+
+                                    case 7: {
+                                        try {
+                                            game.activeazaToateUpgradeurile();
+                                            addLog("Toate upgrade-urile disponibile au fost activate.", sf::Color::Green);
+                                        } catch (const UpgradeException& e) {
+                                            addLog("Eroare la activare upgradeuri: " + std::string(e.what()), sf::Color::Red);
+                                        }
+                                        break;
+                                    }
                                 }
-                            }
                         }
                     }
                 }
@@ -284,7 +319,12 @@ int main() {
         window.display();
     }
 
-    savePlayer(game.getPlayer());
+    try {
+        savePlayer(game.getPlayer());
+        std::cout << "Player progress saved successfully.\n";
+    } catch (const JsonWriteException& e) {
+        std::cerr << "Eroare la salvarea progresului: " << e.what() << "\n";
+    }
     std::cout << "💾 Player progress saved!\n";
 
     return 0;

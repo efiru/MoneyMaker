@@ -1,15 +1,17 @@
 #include "DoubleTapUpgrade.h"
 #include <iostream>
 
+#include "UpgradeException.h"
+
 DoubleTapUpgrade::DoubleTapUpgrade(): Upgrade("DoubleTap"){}
 
 void DoubleTapUpgrade::aplica(Player& player) {
     if (player.getDoubleTap()) {
-        throw std::runtime_error("DoubleTap este deja activat.");
+        throw UpgradeAlreadyUsedException();
     }
 
     if (player.getCurrentBanknoteValue() <= 1) {
-        throw std::runtime_error("Nu poti activa DoubleTap cu o bancnota de 1 leu.");
+        throw UpgradeRequirementException();
     }
 
     player.activeazaDoubleTap();
