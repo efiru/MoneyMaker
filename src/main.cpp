@@ -19,7 +19,8 @@ void to_json(json& j, const Player& p) {
             {"clicksCurent", p.getClicks()},
             {"clicksTotal", p.getClicksTotal()},
             {"banknote", p.getCurrentBanknoteValue()},
-            {"doubleTap", p.getDoubleTap()}
+            {"doubleTap", p.getDoubleTap()},
+               {"usedBanknoteUpgrade", p.getBanknoteUpgradeUsed()}
     };
 }
 
@@ -29,6 +30,8 @@ void from_json(const json& j, Player& p) {
     int clicksTotal = j.at("clicksTotal").get<int>();
     int banknoteVal = j.at("banknote").get<int>();
     bool doubleTap = j.at("doubleTap").get<bool>();
+    bool usedUpgrade = j.at("usedBanknoteUpgrade").get<bool>();
+    p.setBanknoteUpgradeUsed(usedUpgrade);
 
     // Find the matching bancnote type by value
     bancnote tip = UN_LEU;
@@ -88,11 +91,12 @@ int main() {
 
     // Menu options
     std::vector<std::string> options = {
+        "0. Iesire ",
         "1. Arunca o bancnota ",
         "2. Activeaza DoubleTap ",
         "3. Starea Jucatorului ",
         "4. Verifica Achievements ",
-        "0. Iesire "
+        "5. Activeaza BanknoteUpgrade "
     };
 
     std::vector<sf::Text> menuItems;
@@ -159,7 +163,11 @@ int main() {
                     for (int i = 0; i < static_cast<int>(menuItems.size()); ++i) {
                         if (menuItems[i].getGlobalBounds().contains(mousePos)) {
                             switch (i) {
-                                case 0: {
+                                case 0:
+                                    running = false;
+                                window.close();
+                                break;
+                                case 1: {
                                     int before = game.getPlayer().getClicksTotal();
                                     game.getPlayer().aruncaBancnota();
                                     int after = game.getPlayer().getClicksTotal();
@@ -167,7 +175,7 @@ int main() {
                                     addLog("+" + std::to_string(diff), sf::Color::Green);
                                     break;
                                 }
-                                case 1: {
+                                case 2: {
                                     bool before = game.getPlayer().getDoubleTap();
                                     game.getPlayer().activeazaDoubleTap();
                                     bool after = game.getPlayer().getDoubleTap();
@@ -177,13 +185,13 @@ int main() {
                                         addLog("DoubleTap indisponibil 😕", sf::Color::Red);
                                     break;
                                 }
-                                case 2: {
+                                case 3: {
                                     std::ostringstream oss;
                                     oss << game.getPlayer();
                                     addLog(oss.str(), sf::Color::Cyan);
                                     break;
                                 }
-                                case 3: {
+                                case 4: {
                                     for (auto& ach : game.getAchievements()) {
                                         ach.checkUnlock(game.getPlayer());
                                         std::ostringstream oss;
@@ -192,10 +200,16 @@ int main() {
                                     }
                                     break;
                                 }
-                                case 4:
-                                    running = false;
-                                    window.close();
+                                case 5: {
+                                    try {
+                                        BanknoteUpgrade upgrade;
+                                        upgrade.aplica(game.getPlayer());
+                                        addLog("✅ BanknoteUpgrade activat! 🤑", sf::Color::Yellow);
+                                    } catch (const std::exception& e) {
+                                        addLog(std::string("❌ ") + e.what(), sf::Color::Red);
+                                    }
                                     break;
+                                }
                             }
                         }
                     }

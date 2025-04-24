@@ -4,6 +4,7 @@
 #include <vector>
 #include "Player.h"
 #include "Achievement.h"
+#include "BanknoteUpgrade.h"
 
 class Game {
 private:

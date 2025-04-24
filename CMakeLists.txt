@@ -46,6 +46,13 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/Achievement.cpp
         src/Game.h
         src/Game.cpp
+        src/Upgrade.h
+        src/DoubleTapUpgrade.h
+        src/DoubleTapUpgrade.cpp
+        src/LevelUpgrade.h
+        src/LevelUpgrade.cpp
+        src/BanknoteUpgrade.h
+        src/BanknoteUpgrade.cpp
 )
 
 # Include foldere suplimentare

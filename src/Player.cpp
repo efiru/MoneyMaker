@@ -25,6 +25,14 @@ bool Player::posibilUpgrade() const {
     return clicksCurent >= clicksToUpgrade;
 }
 
+bool Player::getBanknoteUpgradeUsed() const {
+    return hasUsedBanknoteUpgrade;
+}
+
+void Player::setBanknoteUpgradeUsed(bool used) {
+    hasUsedBanknoteUpgrade = used;
+}
+
 void Player::aplicaUpgrade() {
     bancnotaCurenta.upgrade(1);
     level++;
@@ -53,6 +61,15 @@ void Player::aruncaBancnota() {
     }
 }
 
+void Player::setClicks(int newClicks) {
+    clicksCurent = newClicks;
+}
+
+void Player::setBancnota(const Bancnota& b) {
+    bancnotaCurenta = b;
+    clicksToUpgrade = bancnotaCurenta.valoare1() * 10;
+}
+
 void Player::activeazaDoubleTap() {
     if (bancnotaCurenta.valoare1() > 1 && !doubleTapUnlocked) {
         bancnotaCurenta.downgrade(1);
@@ -70,6 +87,11 @@ void Player::dezactiveazaDoubleTap() {
     doubleTapUnlocked = false;
     doubleTapUpgradeCounter = 0;
     std::cout << "DoubleTap Deactivat\n";
+}
+
+void Player::aplicaBonusLevelUpgrade() {
+    bancnotaCurenta.upgrade(1);
+    std::cout << "[BONUS] Bancnota upgradată ca recompensă pentru progres!\n";
 }
 
 void Player::reset() {
@@ -104,6 +126,8 @@ int Player::getCurrentClickLimit() const {
 int Player::getCurrentBanknoteValue() const {
     return bancnotaCurenta.valoare1();
 }
+
+
 
 std::ostream& operator<<(std::ostream& os, const Player& p) {
     os << "Nivel: " << p.level

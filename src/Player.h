@@ -22,9 +22,17 @@ public:
     Player(int level, int clicksCurent, int clicksTotal, Bancnota tipBancnota, bool doubleTap);
     ~Player();
 
+    bool hasUsedBanknoteUpgrade = false;
+
+    bool getBanknoteUpgradeUsed() const;
+    void setBanknoteUpgradeUsed(bool);
+
     void aruncaBancnota();
+    void setClicks(int newClicks);
+    void setBancnota(const Bancnota& b);
     void activeazaDoubleTap();
     void dezactiveazaDoubleTap();
+    void aplicaBonusLevelUpgrade();
     void reset();
 
     int getClicks() const;
