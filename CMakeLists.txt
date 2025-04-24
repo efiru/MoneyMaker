@@ -55,6 +55,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/BanknoteUpgrade.cpp
         src/UpgradeException.h
         src/JsonException.h
+        src/UltraUpgrade.h
+        src/UltraUpgrade.cpp
 )
 
 # Include foldere suplimentare
