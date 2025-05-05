@@ -14,17 +14,17 @@ public:
 
 class JsonParseException : public JsonException {
 public:
-    JsonParseException() : JsonException("Eroare la parsarea fișierului JSON.") {}
+    JsonParseException() : JsonException("Eroare la parsarea fisierului JSON.") {}
 };
 
 class JsonWriteException : public JsonException {
 public:
-    JsonWriteException() : JsonException("Eroare la scrierea în fișierul JSON.") {}
+    JsonWriteException() : JsonException("Eroare la scrierea în fisierul JSON.") {}
 };
 
 class JsonFileNotFoundException : public JsonException {
 public:
-    JsonFileNotFoundException() : JsonException("Fișierul JSON nu a fost găsit.") {}
+    JsonFileNotFoundException() : JsonException("Fisierul JSON nu a fost gasit.") {}
 };
 
 #endif

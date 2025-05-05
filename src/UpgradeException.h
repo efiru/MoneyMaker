@@ -19,7 +19,7 @@ public:
 
 class UpgradeRequirementException : public UpgradeException {
 public:
-    UpgradeRequirementException() : UpgradeException("Condițiile pentru activarea acestui upgrade nu sunt îndeplinite.") {}
+    UpgradeRequirementException() : UpgradeException("Conditiile pentru activarea acestui upgrade nu sunt indeplinite.") {}
 };
 
 class UpgradeInsufficientClicksException : public UpgradeException {
@@ -29,7 +29,7 @@ public:
 
 class UpgradeMinimumLevelException : public UpgradeException {
 public:
-    UpgradeMinimumLevelException() : UpgradeException("Trebuie să ai cel puțin nivel 5 pentru a folosi UltraUpgrade!") {}
+    UpgradeMinimumLevelException() : UpgradeException("Trebuie sa ai cel putin nivel 5 pentru a folosi UltraUpgrade!") {}
 };
 
 #endif

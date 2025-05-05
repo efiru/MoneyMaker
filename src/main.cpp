@@ -15,6 +15,7 @@
 #include "DoubleTapUpgrade.h"
 #include "JsonException.h"
 #include "LevelUpgrade.h"
+#include "UltraUpgrade.h"
 #include "UpgradeException.h"
 using json = nlohmann::json;
 
@@ -83,6 +84,28 @@ void loadPlayer(Player& player, const std::string& filename = "player_save.json"
 }
 
 
+void resetPlayer(Player& player, const std::string& filename = "player_save.json") {
+
+    player.reset();
+
+    json j = player;
+    std::cout << (player);
+
+    std::ofstream file(filename);
+
+    if (!file.is_open())
+        throw JsonWriteException();
+
+    try {
+        file << j.dump(4);
+    } catch (...) {
+        throw JsonWriteException();
+    }
+
+
+}
+
+
 int main() {
     // Fullscreen setup
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
@@ -124,14 +147,16 @@ int main() {
         "4. Verifica Achievements ",
         "5. Activeaza LevelUpgrade ",
         "6. Activeaza BanknoteUpgrade ",
-        "7. Activeaza TOATE Upgradeurile disponibile"
+        "7. Activeaza TOATE Upgradeurile disponibile",
+        "8. Activeaza UltraUpgrade (x/3)",
+        "9. Reseteaza Progresul",
     };
 
     std::vector<sf::Text> menuItems;
     for (int i = 0; i < static_cast<int>(options.size()); ++i) {
-        sf::Text item(font, options[i], 40);
+        sf::Text item(font, options[i], 20);
         item.setFillColor(sf::Color::White);
-        item.setPosition({100.f, 150.f + i * 80.f});
+        item.setPosition({100.f, 60.f + i * 80.f});
         menuItems.push_back(item);
     }
 
@@ -194,6 +219,13 @@ int main() {
         progressText.setPosition(sf::Vector2f(hudX, 70.f));
         doubleTapText.setPosition(sf::Vector2f(hudX, 110.f));
         bancnotaText.setPosition(sf::Vector2f(hudX, 150.f));
+
+        std::string ultraProgress = std::to_string(
+        static_cast<int>(game.getPlayer().getDoubleTap()) +
+        static_cast<int>(game.getPlayer().getLevelUpgradeUsed()) +
+        static_cast<int>(game.getPlayer().getBanknoteUpgradeUsed())
+    ) + "/3";
+        menuItems[8].setString("8. Activeaza UltraUpgrade (" + ultraProgress + ")");
 
         while (auto event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
@@ -288,6 +320,33 @@ int main() {
                                         } catch (const UpgradeException& e) {
                                             addLog("Eroare la activare upgradeuri: " + std::string(e.what()), sf::Color::Red);
                                         }
+                                        break;
+                                    }
+
+                                case 8: {
+                                        try {
+                                            UltraUpgrade upgrade;
+                                            upgrade.aplica(game.getPlayer());
+                                            addLog("UltraUpgrade activat cu succes.", sf::Color::Green);
+                                        } catch (const UpgradeAlreadyUsedException& e) {
+                                            addLog("Eroare: " + std::string(e.what()), sf::Color::Red);
+                                        } catch (const UpgradeRequirementException& e) {
+                                            addLog("Conditii insuficiente: " + std::string(e.what()), sf::Color::Red);
+                                        } catch (const UpgradeInsufficientClicksException& e) {
+                                            addLog("Nivel insuficient: " + std::string(e.what()), sf::Color::Red);
+                                        }
+                                        break;
+                                }
+
+                                case 9: {
+                                        try {
+                                            resetPlayer(game.getPlayer() , "player_save.json");
+                                            addLog("Progresul tau a fost resetat.");
+                                        }
+                                        catch (const JsonWriteException& e) {
+                                            addLog("Eroare: " + std::string(e.what()), sf::Color::Red);
+                                        }
+
                                         break;
                                     }
                                 }

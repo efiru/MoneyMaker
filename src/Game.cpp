@@ -5,6 +5,8 @@
 #include <iostream>
 #include <memory>
 
+#include "UltraUpgrade.h"
+
 Game::Game() : achievements({
     {"Click Master", "Ai dat 500 de clicks!"},
     {"Intermediate", "Ai ajuns la nivelul 3!"},
@@ -17,6 +19,8 @@ void Game::initUpgrades() {
     upgrades.push_back(std::make_unique<DoubleTapUpgrade>());
     upgrades.push_back(std::make_unique<LevelUpgrade>());
     upgrades.push_back(std::make_unique<BanknoteUpgrade>());
+    upgrades.push_back(std::make_unique<UltraUpgrade>());
+
 }
 
 void Game::activeazaToateUpgradeurile() {
@@ -47,6 +51,7 @@ void Game::afiseazaMeniu() const {
     std::cout << "5. Activeaza LevelUpgrade (bonus la 1000 clickuri totale)\n";
     std::cout << "6. Activeaza BanknoteUpgrade (cost 250 clicks)\n";
     std::cout << "7. Activeaza toate upgrade-urile disponibile\n";
+    std::cout << "8. Activeaza UltraUpgrade (x/3)";
     std::cout << "0. Iesire\n";
     std::cout << "Introdu optiunea: ";
 }
