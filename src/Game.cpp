@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "UltraUpgrade.h"
+#include "Achievement_Observer.h"
 
 Game::Game() : achievements({
     {"Click Master", "Ai dat 500 de clicks!"},
@@ -13,6 +14,7 @@ Game::Game() : achievements({
     {"Investor", "Ai activat DoubleTap!"}
 }) {
     initUpgrades();
+    player.addObserver(new AchievementObserver(achievements));
 }
 
 void Game::initUpgrades() {

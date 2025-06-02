@@ -15,6 +15,9 @@ void DoubleTapUpgrade::aplica(Player& player) {
     }
 
     player.activeazaDoubleTap();
+
+
+    player.notifyObservers();
 }
 
 std::unique_ptr<Upgrade> DoubleTapUpgrade::clone() const {

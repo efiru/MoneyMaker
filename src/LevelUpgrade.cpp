@@ -10,7 +10,7 @@ void LevelUpgrade::aplica(Player &player) {
         throw UpgradeAlreadyUsedException();
     }
 
-    if (player.getClicksTotal() >= 1000) {
+    if (player.getClicksTotal() >= 300) {
         player.aplicaBonusLevelUpgrade();
         player.setLevelUpgradeUsed(true);
     } else {
@@ -25,7 +25,7 @@ std::unique_ptr<Upgrade> LevelUpgrade::clone() const {
 
 
 void LevelUpgrade::afiseaza() const {
-    std::cout << ">> Level Upgrade: Se activează la 1000 clickuri totale\n";
+    std::cout << ">> Level Upgrade: Se activează la 300 clickuri totale\n";
 }
 
 

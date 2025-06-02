@@ -10,13 +10,16 @@
 #include <optional>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <sstream>
 
+#include "Achievement_Observer.h"
 #include "BanknoteUpgrade.h"
 #include "DoubleTapUpgrade.h"
 #include "JsonException.h"
 #include "LevelUpgrade.h"
 #include "UltraUpgrade.h"
 #include "UpgradeException.h"
+#include "Reward.h"
 using json = nlohmann::json;
 
 
@@ -121,6 +124,8 @@ int main() {
 
     // Game setup
     Game game;
+    auto* achievementObserver = new AchievementObserver(game.getAchievements());
+    game.getPlayer().addObserver(achievementObserver);
 
     try {
         loadPlayer(game.getPlayer());
@@ -150,13 +155,15 @@ int main() {
         "7. Activeaza TOATE Upgradeurile disponibile",
         "8. Activeaza UltraUpgrade (x/3)",
         "9. Reseteaza Progresul",
+        "10. Bonus 100 clickuri (Reward<int>)",
+		"11. Schimba bancnota la 200 LEI (Reward<Bancnota>)",
     };
 
     std::vector<sf::Text> menuItems;
     for (int i = 0; i < static_cast<int>(options.size()); ++i) {
-        sf::Text item(font, options[i], 20);
+        sf::Text item(font, options[i], 16);
         item.setFillColor(sf::Color::White);
-        item.setPosition({100.f, 60.f + i * 80.f});
+        item.setPosition({100.f, 60.f + i * 50.f});
         menuItems.push_back(item);
     }
 
@@ -349,6 +356,31 @@ int main() {
 
                                         break;
                                     }
+
+                                case 10: {
+                                        static bool bonusFolosit = false;
+                                        if (bonusFolosit) {
+                                            addLog("Ai folosit deja bonusul de 100 clickuri.", sf::Color::Red);
+                                        } else {
+                                            Reward<int> bonus(100);
+                                            bonus.aplicaReward(game.getPlayer());
+                                            bonusFolosit = true;
+                                            addLog("Ai primit 100 clickuri bonus!", sf::Color::Green);
+                                        }
+    									break;
+									}
+
+								case 11: {
+                                        if (game.getPlayer().getLevel() < 3) {
+                                            addLog("Trebuie sa ai cel putin nivelul 3 pentru a schimba bancnota!", sf::Color::Red);
+                                        } else {
+                                            Bancnota b(DOUA_SUTE_LEI);
+                                            Reward<Bancnota> banc(b);
+                                            banc.aplicaReward(game.getPlayer());
+                                            addLog("Bancnota schimbata la 200 LEI.", sf::Color::Cyan);
+                                        }
+    								break;
+								}
                                 }
                         }
                     }

@@ -3,6 +3,8 @@
 
 #include "Bancnota.h"
 #include <iostream>
+#include <vector>
+#include "Observer.h"
 
 class Player {
 private:
@@ -14,6 +16,9 @@ private:
     bool doubleTapUnlocked;
     int doubleTapUpgradeCounter;
 
+
+    std::vector<Observer*> observers;
+
     bool posibilUpgrade() const;
     void aplicaUpgrade();
 
@@ -22,11 +27,18 @@ public:
     Player(int level, int clicksCurent, int clicksTotal, Bancnota tipBancnota, bool doubleTap);
     ~Player();
 
+
+    void addObserver(Observer* obs);
+    void notifyObservers() const;
+
     bool hasUsedBanknoteUpgrade = false;
     bool usedLevelUpgrade = false;
 
     bool getLevelUpgradeUsed() const;
     void setLevelUpgradeUsed(bool used);
+
+    void primesteClickuri(int nr);
+    void primesteBancnotaNoua(const Bancnota& b);
 
     bool getBanknoteUpgradeUsed() const;
     void setBanknoteUpgradeUsed(bool);

@@ -1,0 +1,9 @@
+{
+    "banknote": 1,
+    "clicksCurent": 0,
+    "clicksTotal": 0,
+    "doubleTap": false,
+    "level": 1,
+    "usedBanknoteUpgrade": false,
+    "usedLevelUpgrade": false
+}

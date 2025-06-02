@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Observer.h"
 #include <iostream>
 
 Player::Player()
@@ -54,6 +55,27 @@ void Player::aplicaUpgrade() {
     }
 }
 
+void Player::primesteClickuri(int nr) {
+    clicksCurent += nr;
+    clicksTotal += nr;
+    notifyObservers();
+}
+
+void Player::primesteBancnotaNoua(const Bancnota& b) {
+    bancnotaCurenta = b;
+}
+
+void Player::addObserver(Observer* obs) {
+    observers.push_back(obs);
+}
+
+void Player::notifyObservers() const {
+    for (auto obs : observers) {
+        if (obs)
+            obs->update(*this);
+    }
+}
+
 void Player::aruncaBancnota() {
     if (doubleTapUnlocked) {
         clicksCurent += 2;
@@ -71,11 +93,13 @@ void Player::aruncaBancnota() {
 
 void Player::setClicks(int newClicks) {
     clicksCurent = newClicks;
+    notifyObservers();
 }
 
 void Player::setBancnota(const Bancnota& b) {
     bancnotaCurenta = b;
     clicksToUpgrade = bancnotaCurenta.valoare1() * 10;
+    notifyObservers();
 }
 
 void Player::activeazaDoubleTap() {
@@ -85,6 +109,7 @@ void Player::activeazaDoubleTap() {
         clicksCurent = 0;
         doubleTapUnlocked = true;
         doubleTapUpgradeCounter = 0;
+        notifyObservers();
         std::cout << "DoubleTap Activat\n";
     } else {
         std::cout << "Nu poti activa DoubleTap.\n";
@@ -94,10 +119,12 @@ void Player::activeazaDoubleTap() {
 void Player::dezactiveazaDoubleTap() {
     doubleTapUnlocked = false;
     doubleTapUpgradeCounter = 0;
+    notifyObservers();
     std::cout << "DoubleTap Deactivat\n";
 }
 void Player::aplicaBonusLevelUpgrade() {
     level++;
+    notifyObservers();
     std::cout << "[BONUS] Ai primit un nivel bonus ca recompensă pentru progres!\n";
 }
 
@@ -108,6 +135,7 @@ void Player::reset() {
     level = 1;
     clicksToUpgrade = 10;
     doubleTapUnlocked = false;
+    notifyObservers();
 }
 
 int Player::getClicks() const {
